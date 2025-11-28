@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Example: Outer Template Too Close to Body</title>
+</head>
+<body>
+<!-- Outer repeating wrapper (too close to body) -->
+<div class="thread-wrapper">
+    <!-- HEADER (also repeating per thread) -->
+    <div class="thread-header">
+        <h2>Thread title A</h2>
+        <span class="thread-meta">3 comments</span>
+    </div>
+
+    <!-- INNER repeating block: REAL comment list -->
+    <div class="thread-content">
+        <div class="comment-card">
+            <div class="comment-meta">
+                <img class="avatar" src="..." />
+                <span class="author">Alice</span>
+                <span class="time">2 hours ago</span>
+            </div>
+            <div class="comment-body">
+                This is the first comment.
+            </div>
+        </div>
+
+        <div class="comment-card">
+            <div class="comment-meta">
+                <img class="avatar" src="..." />
+                <span class="author">Bob</span>
+                <span class="time">1 hour ago</span>
+            </div>
+            <div class="comment-body">
+                Second comment text here.
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Another thread, same outer pattern near body -->
+<div class="thread-wrapper">
+    <div class="thread-header">
+        <h2>Thread title B</h2>
+        <span class="thread-meta">2 comments</span>
+    </div>
+
+    <div class="thread-content">
+        <div class="comment-card">
+            <div class="comment-meta">
+                <img class="avatar" src="..." />
+                <span class="author">Carol</span>
+                <span class="time">30 minutes ago</span>
+            </div>
+            <div class="comment-body">
+                Another comment here.
+            </div>
+        </div>
+
+        <div class="comment-card">
+            <div class="comment-meta">
+                <img class="avatar" src="..." />
+                <span class="author">Dan</span>
+                <span class="time">10 minutes ago</span>
+            </div>
+            <div class="comment-body">
+                And one more comment.
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

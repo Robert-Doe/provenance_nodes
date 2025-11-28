@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Shadow DOM Demo</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            margin: 2rem;
+            line-height: 1.5;
+        }
+
+        section {
+            margin-bottom: 2rem;
+            padding: 1rem 1.5rem;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        code {
+            background: #f5f5f5;
+            padding: 0.1rem 0.3rem;
+            border-radius: 4px;
+        }
+
+        .log {
+            background: #111;
+            color: #0f0;
+            font-family: "SF Mono", Menlo, Monaco, Consolas, monospace;
+            padding: 0.5rem;
+            border-radius: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-size: 0.9rem;
+        }
+
+        button {
+            cursor: pointer;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            border: 1px solid #777;
+            background: #eee;
+        }
+
+        button:hover {
+            background: #ddd;
+        }
+    </style>
+</head>
+<body>
+<h1>Shadow DOM Demo</h1>
+
+<section>
+    <h2>1. Open shadow root (<code>&lt;user-card&gt;</code>)</h2>
+    <p>
+        This custom element uses <code>attachShadow({ mode: "open" })</code>.
+        We <strong>can</strong> access its internals from the outside using JavaScript.
+    </p>
+
+    <!-- Custom element with OPEN Shadow DOM -->
+    <user-card username="Ada Lovelace"></user-card>
+
+    <p>
+        <button id="read-open-shadow">Read &amp; modify shadow content</button>
+    </p>
+</section>
+
+<section>
+    <h2>2. Closed shadow root (<code>&lt;secret-card&gt;</code>)</h2>
+    <p>
+        This custom element uses <code>attachShadow({ mode: "closed" })</code>.
+        We <strong>cannot</strong> access its internal DOM via <code>element.shadowRoot</code>.
+    </p>
+
+    <!-- Custom element with CLOSED Shadow DOM -->
+    <secret-card></secret-card>
+
+    <p>
+        <button id="try-read-closed-shadow">Try to access closed shadow root</button>
+    </p>
+</section>
+
+<section>
+    <h2>3. Log output</h2>
+    <p>What the JavaScript sees when trying to read inside each shadow tree:</p>
+    <div id="log" class="log"></div>
+</section>
+
+<script>
+    // Utility to log to the on-page "console"
+    function log(message) {
+        const logEl = document.getElementById("log");
+        logEl.textContent += message + "\n";
+        logEl.scrollTop = logEl.scrollHeight;
+        console.log(message); // Also log to real console
+    }
+
+    // 1. Define <user-card> with OPEN shadow root
+    class UserCard extends HTMLElement {
+        constructor() {
+            super();
+            // Open shadow DOM: external code can access this.shadowRoot
+            const shadow = this.attachShadow({ mode: "open" });
+
+            const wrapper = document.createElement("article");
+            wrapper.setAttribute("class", "card");
+
+            const style = document.createElement("style");
+            style.textContent = `
+          .card {
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid #999;
+            background: #fafafa;
+          }
+          .username {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            display: block;
+          }
+          .note {
+            font-size: 0.9rem;
+            color: #555;
+          }
+          button {
+            margin-top: 0.5rem;
+          }
+        `;
+
+            const nameSpan = document.createElement("span");
+            nameSpan.className = "username";
+            nameSpan.textContent = this.getAttribute("username") || "Unknown user";
+
+            const note = document.createElement("div");
+            note.className = "note";
+            note.textContent = "This is inside the shadow DOM (open).";
+
+            const button = document.createElement("button");
+            button.textContent = "Increase internal counter";
+
+            const counterDisplay = document.createElement("div");
+            counterDisplay.className = "counter";
+            counterDisplay.textContent = "Internal counter: 0";
+
+            let counter = 0;
+            button.addEventListener("click", () => {
+                counter++;
+                counterDisplay.textContent = "Internal counter: " + counter;
+            });
+
+            wrapper.appendChild(nameSpan);
+            wrapper.appendChild(note);
+            wrapper.appendChild(counterDisplay);
+            wrapper.appendChild(button);
+
+            shadow.appendChild(style);
+            shadow.appendChild(wrapper);
+        }
+    }
+
+    customElements.define("user-card", UserCard);
+
+    // 2. Define <secret-card> with CLOSED shadow root
+    class SecretCard extends HTMLElement {
+        constructor() {
+            super();
+            // Closed shadow DOM: external code CANNOT read this.shadowRoot
+            const shadow = this.attachShadow({ mode: "closed" });
+
+            const wrapper = document.createElement("article");
+            wrapper.setAttribute("class", "secret");
+
+            const style = document.createElement("style");
+            style.textContent = `
+          .secret {
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid #c33;
+            background: #ffecec;
+          }
+          .secret-title {
+            font-weight: bold;
+            color: #c00;
+            margin-bottom: 0.5rem;
+          }
+        `;
+
+            const title = document.createElement("div");
+            title.className = "secret-title";
+            title.textContent = "Top Secret";
+
+            const text = document.createElement("div");
+            text.textContent = "This content is inside a CLOSED shadow DOM.";
+
+            wrapper.appendChild(title);
+            wrapper.appendChild(text);
+
+            shadow.appendChild(style);
+            shadow.appendChild(wrapper);
+        }
+    }
+
+    customElements.define("secret-card", SecretCard);
+
+    // 3. Programmatic access examples
+
+    // Open shadow root: allowed
+    document.getElementById("read-open-shadow").addEventListener("click", () => {
+        log("=== OPEN shadow root access ===");
+        const userCard = document.querySelector("user-card");
+
+        log("userCard instanceof HTMLElement: " + (userCard instanceof HTMLElement));
+
+        // 3a. Direct access to shadow root
+        log("userCard.shadowRoot is: " + userCard.shadowRoot);
+
+        // 3b. Query inside the shadow DOM
+        const usernameEl = userCard.shadowRoot.querySelector(".username");
+        log("Found username element inside shadow: " + usernameEl);
+        log("usernameEl.textContent before: " + usernameEl.textContent);
+
+        // Modify shadow DOM from outside
+        usernameEl.textContent = usernameEl.textContent + " (modified from outside!)";
+        log("usernameEl.textContent after: " + usernameEl.textContent);
+
+        // Show that regular document.querySelector CANNOT see inside
+        const docUsername = document.querySelector(".username");
+        log("document.querySelector('.username') returns: " + docUsername);
+        log("Reason: styles and elements inside shadow DOM are encapsulated.");
+    });
+
+    // Closed shadow root: blocked
+    document.getElementById("try-read-closed-shadow").addEventListener("click", () => {
+        log("=== CLOSED shadow root access ===");
+        const secretCard = document.querySelector("secret-card");
+
+        log("secretCard instanceof HTMLElement: " + (secretCard instanceof HTMLElement));
+
+        // Trying to access shadowRoot of a closed shadow DOM returns null
+        const closedRoot = secretCard.shadowRoot;
+        log("secretCard.shadowRoot is: " + closedRoot);
+
+        // If we naïvely tried something like secretCard.shadowRoot.querySelector(...)
+        // it would throw, but here we just demonstrate that shadowRoot is null.
+        if (!closedRoot) {
+            log("We cannot access internal nodes of <secret-card> from outside because its shadow root is CLOSED.");
+        }
+    });
+</script>
+</body>
+</html>

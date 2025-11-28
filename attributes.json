@@ -1,0 +1,35 @@
+[
+  "comment_header_with_count", //have
+  "has_shadow_dom", //have_not tested
+  "has_replies_section",
+  "attributes_contain_keywords", //have
+  "action_button_count",
+  "has_action_buttons", //have
+  "aligned_with_textarea",
+  "aligned_with_content_editable",
+  "has_more_options_button",
+
+  "includes_author", //have
+  "author_handle",
+  "author_name_is_clickable",
+
+  "has_avatar", //have
+  "avatar_links_to_profile",
+  "avatar_image_url",
+
+  "has_text_content", //have_not tested
+  "text_word_count",  //have_not tested
+  "text_contains_links", //have_not tested
+  "link density",  //have_not tested
+  "text_contains_mentions_or_hashtags",  //have_not tested
+  "text_contains_emoji",  //have_not tested
+  "emoji_count",  //have_not tested
+  "text_contains_repeated_letters",
+  "text_question_mark_count",
+  "text_is_informal",
+
+  "has_relative_time", //have
+
+  "reply_count_value",
+  "has_less_replies_button",
+]

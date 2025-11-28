@@ -482,7 +482,7 @@
 
 
 const MIN_K = 3;
-const ONLY_OUTER_TEMPLATES = 1;
+const ONLY_OUTER_TEMPLATES = 0;
 const MAX_PER_INSTANCE = 2;
 const MIN_INTERNAL_DEPTH = 3;
 
@@ -1350,7 +1350,7 @@ function buildTemplateFeatureMap(instanceMap) {
             const instEl = elByXPathOrCSS(instXPath);
             if (!instEl) continue;
 
-            // Use the direct parent as the root block (as you requested)
+            // Use the direct parent as the root block
             const rootEl = instEl.parentElement || instEl;
 
             // Call your detectors (you'll define these elsewhere)
